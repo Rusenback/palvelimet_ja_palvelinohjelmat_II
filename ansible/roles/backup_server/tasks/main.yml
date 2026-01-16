@@ -1,0 +1,21 @@
+---
+- name: Create backup directory
+  file:
+    path: "{{ backup_destination }}"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: Install rsync
+  apt:
+    name: rsync
+    state: present
+
+- name: Add server1 SSH public key to authorized_keys
+  authorized_key:
+    user: vagrant
+    key: "{{ hostvars['server1']['ssh_public_key']['content'] | b64decode }}"
+    state: present
+  when: hostvars['server1']['ssh_public_key'] is defined
+

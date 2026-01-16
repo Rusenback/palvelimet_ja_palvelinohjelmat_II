@@ -1,0 +1,2 @@
+---
+- import-playbook: 01-samba-setup.yml

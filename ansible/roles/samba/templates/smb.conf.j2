@@ -1,0 +1,9 @@
+[{{ samba_share_name }}]
+   comment = Shared folder for {{ samba_group }} group
+   path = {{ samba_share_path }}
+   browseable = yes
+   read only = no
+   valid users = @{{ samba_group }}
+   create mask = 0770
+   directory mask = 0770
+   force group = {{ samba_group }}

@@ -1,0 +1,46 @@
+---
+- name: Create backup script directory
+  file:
+    path: "{{ backup_script_path }}"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: Generate SSH key for backup
+  user:
+    name: vagrant
+    generate_ssh_key: yes
+    ssh_key_type: ed25519
+    ssh_key_file: .ssh/id_ed25519
+    ssh_key_comment: "vagrant@server1-backup"
+
+- name: Read SSH public key
+  slurp:
+    src: /home/vagrant/.ssh/id_ed25519.pub
+  register: ssh_public_key
+
+- name: Deploy backup script
+  template:
+    src: backup_samba.sh.j2
+    dest: "{{ backup_script_path }}/backup_samba.sh"
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: Create backup cron job
+  cron:
+    name: "Samba backup to server2"
+    minute: "{{ backup_time_minute }}"
+    hour: "{{ backup_time_hour }}"
+    job: "{{ backup_script_path }}/backup_samba.sh"
+    user: vagrant
+    state: present
+
+- name: Create backup log file
+  file:
+    path: /var/log/samba_backup.log
+    state: touch
+    owner: vagrant
+    group: vagrant
+    mode: '0644'

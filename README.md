@@ -16,40 +16,40 @@
 ## ⭐ Arvosana +1: Tiedostonjakopalvelin ja Varmuuskopiointi
 
 ### Verkkoasetukset
-- [ ] Host-only verkko-adapterit (enp0s8) konfiguroitu
-- [ ] IP-osoitteet annettu (192.168.56.10 ja 192.168.56.11)
-- [ ] Verkkojen toimivuus testattu
+- [x] Host-only verkko-adapterit (enp0s8) konfiguroitu
+- [x] IP-osoitteet annettu (192.168.56.10 ja 192.168.56.11)
+- [x] Verkkojen toimivuus testattu
 
 ### Samba-tiedostonjako
-- [ ] `sambajako` käyttäjäryhmä luotu server1:lle
-- [ ] Samba asennettu server1:lle
+- [x] `sambajako` käyttäjäryhmä luotu server1:lle
+- [x] Samba asennettu server1:lle
   - [ ] **Ansible**: Samba-asennus playbook
-- [ ] Samba-jako konfiguroitu vain `sambajako`-ryhmälle
+- [X] Samba-jako konfiguroitu vain `sambajako`-ryhmälle
   - [ ] **Ansible**: Samba-konfiguraatio template
-- [ ] Käyttäjiä lisätty `sambajako`-ryhmään
+- [X] Käyttäjiä lisätty `sambajako`-ryhmään
   - [ ] **Ansible**: Käyttäjien luonti ja ryhmäjäsenyys
-- [ ] Samba-yhteys testattu isäntäkoneelta IP-osoitteen kautta
-- [ ] Symlinkit luotu käyttäjien kotihakemistoihin
+- [X] Samba-yhteys testattu isäntäkoneelta IP-osoitteen kautta
+- [X] Symlinkit luotu käyttäjien kotihakemistoihin
   - [ ] **Ansible**: Symlinkien luonti
 
 ### Varmuuskopiointi
-- [ ] rsync asennettu molemmille palvelimille
+- [x] rsync asennettu molemmille palvelimille
   - [ ] **Ansible**: rsync-asennus
-- [ ] Varmuuskopiointiskripti luotu
+- [x] Varmuuskopiointiskripti luotu
   - [ ] **Ansible**: Skriptin deployaus
-- [ ] Varmuuskopiointi server1 → server2 testattu
-- [ ] Cron-job varmuuskopioinnille (valinnainen)
+- [x] Varmuuskopiointi server1 → server2 testattu
+- [x] Cron-job varmuuskopioinnille (valinnainen)
   - [ ] **Ansible**: Cron-konfiguraatio
 
 ### Palomuuri (UFW)
-- [ ] UFW asennettu ja aktivoitu server1:lle
+- [x] UFW asennettu ja aktivoitu server1:lle
   - [ ] **Ansible**: UFW-asennus ja aktivointi
-- [ ] SSH-portti (22) avattu
+- [x] SSH-portti (22) avattu
   - [ ] **Ansible**: UFW-säännöt
-- [ ] Samba-portit avattu (137, 138, 139, 445)
+- [x] Samba-portit avattu (137, 138, 139, 445)
   - [ ] **Ansible**: UFW Samba-säännöt
-- [ ] Muut portit estetty (default deny)
-- [ ] Palomuurin toiminta testattu
+- [x] Muut portit estetty (default deny)
+- [x] Palomuurin toiminta testattu
 
 ### Dokumentaatio
 - [ ] Selvitetty Samban käyttämät portit

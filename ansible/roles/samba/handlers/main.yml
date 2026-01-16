@@ -1,0 +1,9 @@
+---
+- name: restart samba
+  systemd: 
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  loop:
+    - smbd
+    - nmbd
