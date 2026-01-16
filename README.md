@@ -7,9 +7,9 @@
 - [x] Vagrantfile luotu kahdelle palvelimelle
 - [x] Molemmat virtuaalikoneet käynnissä ja toimivat
 - [x] SSH-yhteydet molempiin koneisiin toimivat
-- [ ] Ansible asennettu isäntäkoneelle
-- [ ] Ansible inventory-tiedosto luotu
-- [ ] Ansible-yhteys virtuaalikoneisiin testattu
+- [x] Ansible asennettu isäntäkoneelle
+- [X] Ansible inventory-tiedosto luotu
+- [X] Ansible-yhteys virtuaalikoneisiin testattu
 
 ---
 
