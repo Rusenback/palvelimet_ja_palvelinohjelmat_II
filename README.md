@@ -23,31 +23,31 @@
 ### Samba-tiedostonjako
 - [x] `sambajako` käyttäjäryhmä luotu server1:lle
 - [x] Samba asennettu server1:lle
-  - [ ] **Ansible**: Samba-asennus playbook
+  - [x] **Ansible**: Samba-asennus playbook
 - [X] Samba-jako konfiguroitu vain `sambajako`-ryhmälle
-  - [ ] **Ansible**: Samba-konfiguraatio template
+  - [x] **Ansible**: Samba-konfiguraatio template
 - [X] Käyttäjiä lisätty `sambajako`-ryhmään
-  - [ ] **Ansible**: Käyttäjien luonti ja ryhmäjäsenyys
+  - [x] **Ansible**: Käyttäjien luonti ja ryhmäjäsenyys
 - [X] Samba-yhteys testattu isäntäkoneelta IP-osoitteen kautta
 - [X] Symlinkit luotu käyttäjien kotihakemistoihin
-  - [ ] **Ansible**: Symlinkien luonti
+  - [x] **Ansible**: Symlinkien luonti
 
 ### Varmuuskopiointi
 - [x] rsync asennettu molemmille palvelimille
-  - [ ] **Ansible**: rsync-asennus
+  - [x] **Ansible**: rsync-asennus
 - [x] Varmuuskopiointiskripti luotu
-  - [ ] **Ansible**: Skriptin deployaus
+  - [x] **Ansible**: Skriptin deployaus
 - [x] Varmuuskopiointi server1 → server2 testattu
 - [x] Cron-job varmuuskopioinnille (valinnainen)
-  - [ ] **Ansible**: Cron-konfiguraatio
+  - [x] **Ansible**: Cron-konfiguraatio
 
 ### Palomuuri (UFW)
 - [x] UFW asennettu ja aktivoitu server1:lle
-  - [ ] **Ansible**: UFW-asennus ja aktivointi
+  - [x] **Ansible**: UFW-asennus ja aktivointi
 - [x] SSH-portti (22) avattu
-  - [ ] **Ansible**: UFW-säännöt
+  - [x] **Ansible**: UFW-säännöt
 - [x] Samba-portit avattu (137, 138, 139, 445)
-  - [ ] **Ansible**: UFW Samba-säännöt
+  - [x] **Ansible**: UFW Samba-säännöt
 - [x] Muut portit estetty (default deny)
 - [x] Palomuurin toiminta testattu
 
