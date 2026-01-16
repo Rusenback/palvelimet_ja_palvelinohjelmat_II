@@ -1,0 +1,38 @@
+# Vagrant
+.vagrant/
+*.box
+
+# VirtualBox
+*.vdi
+
+# SSH keys (jos generoitu projektissa)
+*.pem
+*.key
+id_rsa*
+
+# Ansible
+*.retry
+ansible/.ansible/
+
+# Logs
+*.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporary files
+*.tmp
+.cache/
+
+# Sensitive data
+secrets.yml
+vault_pass.txt
+EOF
