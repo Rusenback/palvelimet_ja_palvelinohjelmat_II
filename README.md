@@ -61,39 +61,39 @@
 ## ⭐ Arvosana +1: Web-host
 
 ### Nginx-asennus ja käyttäjähallinta
-- [ ] Nginx asennettu server1:lle
-  - [ ] **Ansible**: Nginx-asennus playbook
-- [ ] `developers` käyttäjäryhmä luotu
-  - [ ] **Ansible**: Ryhmän ja käyttäjien luonti
-- [ ] `webmaster` käyttäjä luotu ja lisätty `developers`-ryhmään
-- [ ] Käyttöoikeudet nginx-konfiguraatioille ja verkkosivuille
-  - [ ] **Ansible**: File permissions management
+- [x] Nginx asennettu server1:lle
+  - [x] **Ansible**: Nginx-asennus playbook
+- [x] `developers` käyttäjäryhmä luotu
+  - [x] **Ansible**: Ryhmän ja käyttäjien luonti
+- [x] `webmaster` käyttäjä luotu ja lisätty `developers`-ryhmään
+- [x] Käyttöoikeudet nginx-konfiguraatioille ja verkkosivuille
+  - [x] **Ansible**: File permissions management
 
 ### Verkkosivut ja hakemistorakenne
-- [ ] Verkkosivuhakemisto luotu `/srv/` alle (esim. `/srv/www`)
-  - [ ] **Ansible**: Hakemistorakenteen luonti
-- [ ] Verkkosivut luotu tai kopioitu
-  - [ ] **Ansible**: Verkkosivujen deployaus template
-- [ ] Virhesivut luotu (404, 500, 301)
-  - [ ] **Ansible**: Error pages deployment
+- [x] Verkkosivuhakemisto luotu `/srv/` alle (esim. `/srv/www`)
+  - [x] **Ansible**: Hakemistorakenteen luonti
+- [x] Verkkosivut luotu tai kopioitu
+  - [x] **Ansible**: Verkkosivujen deployaus template
+- [x] Virhesivut luotu (404, 500, 301)
+  - [x] **Ansible**: Error pages deployment
 
 ### SSL/TLS-sertifikaatit
-- [ ] Hakemistot sertifikaateille luotu (ei oletushakemisto)
-  - [ ] **Ansible**: SSL-hakemistojen luonti
-- [ ] Itse-allekirjoitettu SSL-sertifikaatti luotu
-  - [ ] **Ansible**: Self-signed certificate generation
-- [ ] Käyttöoikeudet sertifikaateille (principle of least privilege)
-  - [ ] **Ansible**: Certificate permissions
-- [ ] Yksityinen avain suojattu (ei developers-ryhmälle lukuoikeutta)
+- [x] Hakemistot sertifikaateille luotu (ei oletushakemisto)
+  - [x] **Ansible**: SSL-hakemistojen luonti
+- [x] Itse-allekirjoitettu SSL-sertifikaatti luotu
+  - [x] **Ansible**: Self-signed certificate generation
+- [x] Käyttöoikeudet sertifikaateille (principle of least privilege)
+  - [x] **Ansible**: Certificate permissions
+- [x] Yksityinen avain suojattu (ei developers-ryhmälle lukuoikeutta)
 
 ### Nginx-konfiguraatio
-- [ ] Nginx konfiguroidtu käyttämään `/srv/www` hakemistoa
-  - [ ] **Ansible**: Nginx site configuration template
-- [ ] HTTP → HTTPS redirect konfiguroidtu
-- [ ] HTTPS konfiguroidtu SSL-sertifikaatilla
-- [ ] Virhesivut konfiguroidtu (404, 500, 301)
-- [ ] Nginx käynnistetty uudelleen
-  - [ ] **Ansible**: Nginx restart handler
+- [x] Nginx konfiguroidtu käyttämään `/srv/www` hakemistoa
+  - [x] **Ansible**: Nginx site configuration template
+- [x] HTTP → HTTPS redirect konfiguroidtu
+- [x] HTTPS konfiguroidtu SSL-sertifikaatilla
+- [x] Virhesivut konfiguroidtu (404, 500, 301)
+- [x] Nginx käynnistetty uudelleen
+  - [x] **Ansible**: Nginx restart handler
 
 ### Testaus
 - [ ] Verkkosivulle pääsy testattu HTTP:llä (pitäisi ohjautua HTTPS:ään)
@@ -102,9 +102,9 @@
 - [ ] Virhesivut testattu (404, 500)
 
 ### Palomuuri
-- [ ] HTTP-portti (80) avattu UFW:ssä
-  - [ ] **Ansible**: UFW HTTP/HTTPS rules
-- [ ] HTTPS-portti (443) avattu UFW:ssä
+- [x] HTTP-portti (80) avattu UFW:ssä
+  - [x] **Ansible**: UFW HTTP/HTTPS rules
+- [x] HTTPS-portti (443) avattu UFW:ssä
 
 ### Dokumentaatio
 - [ ] Selitetty käyttäjäryhmien merkitys tietoturvalle
