@@ -1,0 +1,79 @@
+---
+- name: Install Nginx and dependencies 
+  apt: 
+    name: 
+      - nginx 
+      - openssl
+      - acl
+    state: present
+    update_cache: yes
+
+- name: Create developers group
+  group:
+    name: "{{ nginx_user_group }}"
+    state: present
+
+- name: Create webmaster user 
+  user: 
+    name: "{{ nginx_user }}"
+    groups: "{{ nginx_user_group }}"
+    append: yes
+    create_home: yes
+    shell: /bin/bash
+    password: "{{ nginx_user_password | password_hash('sha512') }}"
+    state: present
+
+
+- name: Create web directories
+  file: 
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: developers
+    mode: '2775'
+  loop: 
+    - "{{ web_root }}"
+    - "{{ web_html }}"
+    - "{{ web_logs }}"
+  register: web_dirs_result
+
+- name: Debug web directories creation
+  debug:
+    var: web_dirs_result
+
+- name: Set ACL for developers group on web directories
+  acl:
+    path: "{{ item }}"
+    entity: "{{ nginx_user_group }}"
+    etype: group
+    permissions: rwx
+    state: present
+    recursive: yes
+    default: yes
+  loop: 
+    - "{{ web_root }}"
+    - "{{ web_html }}"
+    - "{{ web_logs }}"
+
+- name: Deploy web pages from templates
+  template:
+    src: "{{ item.src }}"
+    dest: /srv/www/html/{{ item.dest }} 
+    owner: root
+    group: "{{ nginx_user_group }}"
+    mode: '0664'
+  loop:
+    - { src: 'index.html.j2', dest: 'index.html' }
+    - { src: '404.html.j2', dest: '404.html' }
+    - { src: '500.html.j2', dest: '500.html' }
+
+
+- name: Include SSL certificate tasks
+  include_tasks: ssl.yml
+
+- name: Include Nginx configuration tasks
+  include_tasks: nginx_config.yml
+
+- name: Include firewall tasks
+  include_tasks: firewall.yml
+

@@ -33,7 +33,7 @@
 - name: Create Samba share directory
   file:
     path: "{{ samba_share_path }}"
-    state: directory
+    state: directory 
     owner: root
     group: "{{ samba_group }}"
     mode: '2770'
@@ -76,8 +76,4 @@
     name: vagrant
     groups: "{{ samba_group }}"
     append: yes
-
-
-
-
 

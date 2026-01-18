@@ -1,0 +1,24 @@
+---
+- name: Setup Nginx web server on server1
+  hosts: server1
+  become: yes
+  vars_files:
+    - ../group_vars/vault.yml
+  
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+  
+  roles:
+    - nginx
+  
+  post_tasks:
+    - name: Display access information
+      debug:
+        msg:
+          - "Nginx web server setup complete!"
+          - "Access the site at: https://{{ hostvars[inventory_hostname]['ansible_host'] }}"
+          - "HTTP will redirect to HTTPS automatically"
+          - "Username: {{ nginx_user }}"

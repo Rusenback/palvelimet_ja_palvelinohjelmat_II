@@ -1,2 +1,3 @@
 ---
-- import-playbook: 01-samba-setup.yml
+- import_playbook: 01-samba-setup.yml
+- import_playbook: 02-nginx-setup.yml
