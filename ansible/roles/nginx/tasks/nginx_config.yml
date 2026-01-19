@@ -26,20 +26,10 @@
     dest: /etc/nginx/sites-available/rainomalabra
   register: nginx_template_result
 
-
-- name: Debug template result
-  debug:
-    var: nginx_template_result
-
 - name: Check if site config was created
   stat:
     path: /etc/nginx/sites-available/rainomalabra
   register: site_config_stat
-
-
-- name: Debug site config stat
-  debug:
-    var: site_config_stat
 
 - name: Enable Nginx site
   file:
@@ -54,9 +44,9 @@
   changed_when: false
   failed_when: nginx_test.rc != 0
 
-- name: Ensure Nginx is started and enabled
-  systemd:
-    name: nginx
-    state: started
-    enabled: yes
+# - name: Ensure Nginx is started and enabled
+#   systemd:
+#     name: nginx
+#     state: started
+#     enabled: yes
 

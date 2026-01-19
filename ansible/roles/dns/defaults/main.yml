@@ -1,0 +1,8 @@
+---
+# DNS configuration
+
+dns_domain: rainomalabra.local
+dns_server_ip: 192.168.56.10
+dnz_zone_file: db.rainomalabra.local
+dns_reserve_zone_file: db.192.168.56
+dns_reverse_zone: 56.168.192.in-addr.arpa

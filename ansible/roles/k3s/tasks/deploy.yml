@@ -1,0 +1,67 @@
+---
+- name: Create K3s config directory
+  file:
+    path: /opt/k3s/nginx-config
+    state: directory
+    mode: '0755'
+
+- name: Ensure nginx directories exist on server1
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /srv/www/html
+    - /opt/k3s/nginx-config
+    - /etc/ssl/rainomalabra
+  delegate_to: server1
+  become: yes
+
+- name: Ensure nginx directories exist on server2
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /srv/www/html
+    - /opt/k3s/nginx-config 
+    - /etc/ssl/rainomalabra
+  delegate_to: server2 
+  become: yes
+
+- name: Deploy Nginx config for K3s
+  template:
+    src: k3s-nginx.conf.j2
+    dest: /opt/k3s/nginx-config/default.conf
+    mode: '0644'
+
+- name: Deploy Nginx Deployment manifest
+  template:
+    src: nginx-deployment.yaml.j2
+    dest: /tmp/nginx-deployment.yaml
+    mode: '0644'
+  delegate_to: server1
+
+- name: Deploy Nginx Service manifest
+  template:
+    src: nginx-service.yaml.j2
+    dest: /tmp/nginx-service.yaml
+    mode: '0644'
+  delegate_to: server1
+
+- name: Apply Nginx Deployment
+  command: k3s kubectl apply -f /tmp/nginx-deployment.yaml
+  delegate_to: server1
+  register: deploy_result
+  changed_when: "'configured' in deploy_result.stdout or 'created' in deploy_result.stdout"
+
+- name: Apply Nginx Service
+  command: k3s kubectl apply -f /tmp/nginx-service.yaml
+  delegate_to: server1
+  register: service_result
+  changed_when: "'configured' in service_result.stdout or 'created' in service_result.stdout"
+
+- name: Wait for deployment to be ready
+  command: k3s kubectl rollout status deployment/nginx-web -n {{ k3s_namespace }}
+  delegate_to: server1
+  changed_when: false

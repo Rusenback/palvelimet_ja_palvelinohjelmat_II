@@ -1,0 +1,110 @@
+---
+- name: Install Docker dependencies
+  apt: 
+    name: 
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg
+      - lsb-release
+    state: present
+    update_cache: yes
+
+- name: Add Docker GPG key
+  shell: |
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+  args:
+    creates: /usr/share/keyrings/docker-archive-keyring.gpg
+
+- name: Add Docker repository
+  shell: |
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable" > /etc/apt/sources.list.d/docker.list
+  args:
+    creates: /etc/apt/sources.list.d/docker.list
+
+
+- name: Install Docker 
+  apt: 
+    name: 
+      - docker-ce 
+      - docker-ce-cli
+      - containerd.io
+      - docker-compose-plugin
+    state: present
+    update_cache: yes 
+
+- name: Ensure Docker is started and enabled
+  systemd: 
+    name: docker 
+    state: started
+    enabled: yes
+
+- name: add users to docker group
+  user:
+    name: "{{ item }}"
+    groups: docker 
+    append: yes
+  loop: "{{ docker_users }}"
+
+- name: Gather service facts 
+  service_facts: 
+
+- name: stop traditional Nginx service 
+  systemd:
+    name: nginx 
+    state: stopped
+    enabled: no 
+  when: "'nginx.service' in services"
+  ignore_errors: yes
+
+- name: Wait for port 80 to be free
+  wait_for: 
+    port: 80
+    state: stopped
+    timeout: 30
+  ignore_errors: yes
+
+- name: Kill any proces using port 80
+  shell: |
+    fuser -k 80/tcp || true
+    sleep 2
+  ignore_errors: yes
+
+- name: Create docker compose directory
+  file: 
+    path: /opt/docker_nginx
+    state: directory
+    owner: root
+    group: docker
+    mode: '0755'
+
+- name: Depoly Docker Compose file
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/docker_nginx/docker-compose.yml
+    owner: root
+    group: docker
+    mode: '0644'
+
+- name: Deploy Nginx container configuration
+  template: 
+    src: nginx-container.conf.j2
+    dest: /opt/docker_nginx/nginx.conf
+    owner: root
+    group: docker
+    mode: '0644'
+
+- name: Start Nging container with Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: /opt/docker_nginx
+    state: present  
+  register: docker_output
+
+# - name: Display Docker container status
+#   debug: 
+#     var: docker_output
+
+  
+    
+
+  

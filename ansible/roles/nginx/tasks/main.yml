@@ -37,9 +37,9 @@
     - "{{ web_logs }}"
   register: web_dirs_result
 
-- name: Debug web directories creation
-  debug:
-    var: web_dirs_result
+# - name: Debug web directories creation
+#   debug:
+#     var: web_dirs_result
 
 - name: Set ACL for developers group on web directories
   acl:

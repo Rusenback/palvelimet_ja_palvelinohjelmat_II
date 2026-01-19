@@ -1,0 +1,56 @@
+---
+- name: Setup DNS and Docker on server1 
+  hosts: server1
+  become: yes
+  vars_files:
+    - ../group_vars/vault.yml
+
+  vars:
+    dns_domain: rainomalabra.local
+    dns_server_ip: 192.168.56.10
+    dns_network: 192.168.56.0/24
+    dns_reserve_zone: 56.168.192.in-addr.arpa
+
+  pre_tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+  roles:
+    - dns 
+    - docker 
+  
+  post_tasks: 
+    - name: Wait for Docker containers to be ready
+      pause: 
+        seconds: 5 
+
+    - name: Test DNS resolution locally
+      command: nslookup www.{{ dns_domain }} localhost
+      register: dns_test
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Display DNS test result
+      debug:
+        var: dns_test.stdout_lines
+
+    - name: Test docker container
+      command: docker ps 
+      register: docker_ps 
+      changed_when: false 
+
+    - name: Display running containers 
+      debug: 
+        var: docker_ps.stdout_lines
+
+    - name: Display acces information
+      debug: 
+        msg: 
+          - "DNS and Docker setupC complete!"
+          - "DNS domain: www.{{ dns_domain }}"
+          - "To test DNS from server 2 or host: nslookup www.{{ dns_domain }} {{ dns_server_ip}}"
+          - "Nginx running in Docker container"
+          - "Acces the site at: https://{{ dns_server_ip }}"
+      
