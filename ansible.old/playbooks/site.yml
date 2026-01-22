@@ -1,5 +1,0 @@
----
-- import_playbook: 01-samba-setup.yml
-- import_playbook: 02-nginx-setup.yml
-- import_playbook: 03-dns-docker-setup.yml
-- import_playbook: 04-k3s-setup.yml
