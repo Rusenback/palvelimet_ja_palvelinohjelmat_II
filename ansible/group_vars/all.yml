@@ -1,0 +1,88 @@
+---
+# Yleiset muuttujat kaikille playbookeille 
+
+# Verkkoasetukset
+host_only_interface: ensp0s8
+vm1_ip: 192.168.56.10 
+vm1_netmask: 255.255.255.0
+vm2_ip: 192.168.56.11
+vm2_netmask: 255.255.255.0 
+network_cidr: 192.168.56.0/24 
+
+# DNS-asetukset 
+domain_name: rainomalabra.local 
+dns_forwarders: 
+  - 8.8.8.8
+  - 8.8.4.4 
+
+user_groups: 
+  - name: sambajako
+    gid: 3000 
+  - name: developers 
+    gid: 3001 
+
+# Käyttäjät 
+users:
+  # Samba käyttäjät 
+  - name: sambauser1 
+    groups: sambajako 
+    create_home: yes 
+    shell: /bin/bash 
+    password: "{{ vault_user_passwords.sambauser1 }}"
+  - name: sambauser2 
+    groups: sambajako 
+    create_home: yes 
+    shell: /bin/bash 
+    password: "{{ vault_user_passwords.sambauser2 }}"
+  
+  # Developers käyttäjät
+  - name: webmaster
+    groups: developers
+    create_home: yes 
+    shell: /bin/bash 
+    password: "{{ vault_user_passwords.webmaster}}"
+  - name: developer1 
+    groups: developers
+    create_home: yes 
+    shell: /bin/bash 
+    password: "{{ vault_user_passwords.developer1}}"
+
+# Hakemistot 
+samba_share_path: /srv/samba/shared
+samba_share_name: shared
+samba_group: sambajako
+web_root: /srv/www 
+ssl_cert_path: /srv/ssl/certs 
+ssl_key_path: /srv/ssl/private 
+backup_destination: /srv/backup 
+
+# Palomuuri-portit 
+firewall_rules: 
+  ssh_port: 22 
+  samba_ports: 
+    - 137       # NetBios Name Service 
+    - 138       # NetBios Datagram Service 
+    - 139       # NetBios Session Service 
+    - 445       # SMB over TCP 
+  web_ports: 
+    - 80        # HTTP 
+    - 443       # HTPS 
+  dns_ports: 
+    - 53        # DNS 
+  k3s_ports: 
+    - 6443      # Kubernetes API 
+    - 10250     # Kubelet 
+    - 2379      # etcd client 
+    - 2380      # etcd peer 
+
+# SSL-sertifikaatin asetukset 
+ssl_certificate: 
+  country: FI 
+  state: Uusimaa
+  locality: Helsinki 
+  organization: RainomaLabra 
+  organizational_unit: IT 
+  common_name: "www.{{ domain_name }}"
+  days_valid: 365
+
+

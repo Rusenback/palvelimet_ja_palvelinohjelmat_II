@@ -1,0 +1,14 @@
+;
+; BIND reverse data file for {{ dns_network }}
+;
+$TTL    604800
+@       IN      SOA     {{ dns_domain }}. admin.{{ dns_domain }}. (
+                              2         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      ns.{{ dns_domain }}.
+10      IN      PTR     {{ dns_domain }}.
+10      IN      PTR     www.{{ dns_domain }}.

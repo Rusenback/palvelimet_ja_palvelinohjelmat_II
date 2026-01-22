@@ -1,0 +1,27 @@
+options {
+    directory "/var/cache/bind";
+
+    // Forwarders - käytä Google DNS:ää jos ei löydy omasta cachesta
+    forwarders {
+{% for forwarder in dns_forwarders %}
+        {{ forwarder }};
+{% endfor %}
+    };
+
+    // DNS Security Extensions
+    dnssec-validation auto;
+
+    // Kuuntele kaikkia interfaceja
+    listen-on { any; };
+    listen-on-v6 { any; };
+
+    // Salli kyselyt vain local-verkosta
+    allow-query { localhost; {{ network_cidr }}; };
+
+    // Salli rekursio vain sallituille
+    recursion yes;
+    allow-recursion { localhost; {{ network_cidr }}; };
+
+    // Älä salli zone transfereja oletuksena
+    allow-transfer { none; };
+};

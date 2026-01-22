@@ -1,0 +1,116 @@
+---
+
+- name: Create backup Directory on VM2 
+  file:
+    path: "{{ backup_destination }}"
+    state: directory
+    mode: '0755'
+    owner: backup  
+    group: backup
+  when: inventory_hostname == 'vm2'
+
+- name: Create backup user on VM2 
+  user: 
+    name: backup 
+    groups: sambajako 
+    create_home: yes 
+    shell: /bin/bash
+    state: present
+  when: inventory_hostname == 'vm2'
+
+- name: Create .ssh directory for backup user 
+  file: 
+    path: /home/backup/.ssh 
+    state: directory
+    mode: '0700'
+    owner: backup
+    group: backup
+  when: inventory_hostname == 'vm2'
+
+- name: Check if SSH-key exists 
+  stat: 
+    path: /root/.ssh/backup_key 
+  register: ssh_key_stat
+  when: inventory_hostname == 'vm1'
+
+- name: Create SSH keypair for backup connection 
+  command: ssh-keygen -t ed25519 -f /root/.ssh/backup_key -N "" -C "backup@vm1"
+  when: 
+    - inventory_hostname == 'vm1'
+    - not ssh_key_stat.stat.exists
+
+- name: Check that .ssh exists on VM2  
+  file:
+    path: /home/backup/.ssh
+    state: directory
+    mode: '0700'
+    owner: backup
+    group: backup
+  when: inventory_hostname == 'vm2'
+
+- name: Create empty authorized keys file 
+  file:
+    path: /home/backup/.ssh/authorized_keys
+    state: touch
+    mode: '0600'
+    owner: backup
+    group: backup
+  when: inventory_hostname == 'vm2'
+
+- name: Hae public key VM1:ltä
+  fetch:
+    src: /root/.ssh/backup_key.pub
+    dest: /tmp/ansible_backup_key.pub
+    flat: yes
+  when: inventory_hostname == 'vm1'
+
+- name: Aseta public key VM2:lle
+  authorized_key:
+    user: backup
+    key: "{{ lookup('file', '/tmp/ansible_backup_key.pub') }}"
+    state: present
+  when: inventory_hostname == 'vm2'
+
+- name: Import backup script to VM1 
+  template:
+    src: backup-script.sh.j2
+    dest: /usr/local/bin/samba-backup.sh 
+    mode: '0755'
+    owner: root
+    group: root 
+  when: inventory_hostname == 'vm1'
+
+- name: Setup cron-job for daily backups 
+  cron: 
+    name: "Samba backup to VM2"
+    minute: "0"
+    hour: "2"
+    job: "/usr/local/bin/samba-backup >> /var/log/samba-backup.log 2>&1"
+    user: root 
+    state: present
+  when: inventory_hostname == 'vm1'
+
+- name: Create Log file 
+  file: 
+    path: /var/log/samba-backup.log 
+    state: touch 
+    mode: '0644'
+    owner: root 
+    group: root 
+  when: inventory_hostname == 'vm1'
+
+- name: Test backup Manually (first run) 
+  command: /usr/local/bin/samba-backup.sh 
+  when: 
+    - inventory_hostname == 'vm1'
+    - ansible_check_mode == false 
+  register: backup_result
+  changed_when: false 
+  ignore_errors: yes 
+
+- name: Show backup-tests result 
+  debug: 
+    var: backup_result.stdout_lines 
+  when: 
+    - inventory_hostname == 'vm1'
+    - backup_result is defined 

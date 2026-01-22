@@ -1,0 +1,86 @@
+---
+- name: Install default packages 
+  apt: 
+    name: 
+      - sudo
+      - vim 
+      - net-tools 
+      - curl 
+      - wget 
+      - rsync 
+      - ufw
+      - python3-pip
+      - rsync 
+    state: present 
+
+- name: Set timezone to UTC
+  timezone:
+    name: UTC
+
+- name: Create User Groups 
+  group: 
+    name: "{{ item.name }}"
+    gid: "{{ item.gid }}"
+    state: present 
+  loop: "{{ user_groups }}"
+
+- name: Create Users 
+  user: 
+    name: "{{ item.name }}"
+    groups: "{{ item.groups }}"
+    append: yes 
+    create_home: "{{ item.create_home }}"
+    shell: "{{ item.shell }}"
+    state: present 
+  loop: "{{ users }}"
+
+- name: Set Linux Passwords 
+  user: 
+    name: "{{ item.name }}"
+    password: "{{ item.password | password_hash('sha512') }}"
+    update_password: on_create
+  loop: "{{ users }}"
+  no_log: yes 
+  when: item.password is defined 
+  
+- name: Verify /srv exists 
+  file: 
+    path: /srv 
+    state: directory 
+    mode: '0755'
+    owner: root 
+    group: root 
+
+- name: Create web directory  
+  file: 
+    path: "{{ web_root }}"
+    state: directory 
+    mode: '2755'
+    owner: root 
+    group: developers 
+
+- name: Create directory for SSL-certificates 
+  file: 
+    path: "{{ ssl_cert_path }}"
+    state: directory 
+    mode: '0755'
+    owner: root 
+    group: root 
+
+- name: Create directory for SSL-keys  
+  file: 
+    path: "{{ ssl_key_path }}"
+    state: directory
+    mode: '0755'
+    owner: root 
+    group: root 
+
+- name: Create Samba share directory 
+  file: 
+    path: "{{ samba_share_path }}"
+    state: directory 
+    mode: '2770'
+    owner: root 
+    group: sambajako
+  when: inventory_hostname == 'vm1'
+

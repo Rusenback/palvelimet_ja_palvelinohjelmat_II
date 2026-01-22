@@ -1,5 +1,10 @@
 ---
-- name: restart bind9
-  systemd: 
+- name: restart_bind9 
+  systemd:
+    name: bind9 
+    state: restarted 
+
+- name: reload_bind9 
+  systemd:
     name: bind9
-    state: restarted
+    state: reloaded 

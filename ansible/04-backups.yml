@@ -1,0 +1,7 @@
+---
+- name: Backup Setup - Rsync VM1 -> VM2 
+  hosts: all 
+  become: yes
+
+  roles: 
+    - ./roles/backup

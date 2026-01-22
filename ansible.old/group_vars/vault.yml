@@ -1,0 +1,10 @@
+---
+# Samba users
+vault_samba_users:
+  - username: sambauser1
+    password: samba123
+  - username: sambauser2
+    password: samba123
+
+#nginx users
+vault_nginx_user_password: web123

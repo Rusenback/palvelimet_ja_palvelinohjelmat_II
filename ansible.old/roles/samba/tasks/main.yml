@@ -1,0 +1,79 @@
+---
+- name: Install Samba packages
+  apt: 
+    name:
+      - samba
+      - samba-common-bin
+    state: present
+    update_cache: yes
+
+- name: Create Samba group
+  group: 
+    name: "{{ samba_group }}"
+    state: present
+
+- name: Create Samba users 
+  user: 
+    name: "{{ item.username}}"
+    groups: "{{ samba_group }}"
+    append: yes
+    create_home: yes
+    shell: /bin/bash
+    state: present
+  loop: "{{ samba_users }}"
+
+- name: Set Linux passowrd for Samba users
+  user: 
+    name: "{{ item.username }}"
+    password: "{{ item.password | password_hash('sha512') }}"
+    update_password: always
+  loop: "{{ samba_users }}"
+  no_log: true
+
+- name: Create Samba share directory
+  file:
+    path: "{{ samba_share_path }}"
+    state: directory 
+    owner: root
+    group: "{{ samba_group }}"
+    mode: '2770'
+
+- name: Create symbolic links to shared folders in user home directories
+  file:
+    src: "{{ samba_share_path }}"
+    dest: "/home/{{ item.username }}/shared"
+    state: link
+    owner: "{{ item.username }}"
+    group: "{{ item.username }}"
+  loop: "{{ samba_users }}"
+
+- name: Backup original smb.conf
+  copy:
+    src: /etc/samba/smb.conf
+    dest: /etc/samba/smb.conf.backup
+    remote_src: yes
+    force: no
+
+- name: Configure Samba share
+  blockinfile:
+    path: /etc/samba/smb.conf
+    block: "{{ lookup('template', 'smb.conf.j2') }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ samba_share_name }}"
+    create: yes
+  notify: restart samba
+
+- name: Add users to Samba database
+  shell: |
+    (echo "{{ item.password }}"; echo "{{ item.password }}") | smbpasswd -a -s {{ item.username }}
+    smbpasswd -e {{ item.username }}
+  loop: "{{ samba_users }}"
+  no_log: true
+  register: smbpasswd_result
+  changed_when: "'Added user' in smbpasswd_result.stdout"
+
+- name: Add vagrant user to Samba group (for backup access)
+  user:
+    name: vagrant
+    groups: "{{ samba_group }}"
+    append: yes
+

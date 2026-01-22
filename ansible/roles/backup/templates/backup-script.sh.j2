@@ -1,0 +1,29 @@
+#!/bin/bash
+# Samba backup script - VM1 → VM2
+# Created by Ansible
+
+set -e
+
+# Variables
+SOURCE="{{ samba_share_path }}/"
+DEST="backup@{{ vm2_ip }}:{{ backup_destination }}/"
+SSH_KEY="/root/.ssh/backup_key"
+LOG_FILE="/var/log/samba-backup.log"
+DATE=$(date '+%Y-%m-%d %H:%M:%S')
+
+echo "[$DATE] Starting backup: $SOURCE -> $DEST"
+
+# Rsync with SSH
+rsync -avz --delete \
+  -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=no" \
+  "$SOURCE" "$DEST" 2>&1
+
+EXIT_CODE=$?
+
+if [ $EXIT_CODE -eq 0 ]; then
+    echo "[$DATE] Backup completed successfully"
+    exit 0
+else
+    echo "[$DATE] Backup failed with exit code $EXIT_CODE"
+    exit $EXIT_CODE
+fi

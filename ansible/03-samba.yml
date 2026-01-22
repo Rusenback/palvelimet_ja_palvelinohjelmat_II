@@ -1,0 +1,17 @@
+---
+- name: Samba setup
+  hosts: vm1
+  become: yes
+  vars_files: 
+    - ./group_vars/all.yml
+    - ./group_vars/vault.yml
+
+  pre_tasks: 
+    - name: Update apt cache
+      apt: 
+        update_cache: yes 
+        cache_valid_time: 3600 
+  
+  roles: 
+    - ./roles/samba/
+

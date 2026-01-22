@@ -1,79 +1,59 @@
 ---
 - name: Install Samba packages
   apt: 
-    name:
-      - samba
-      - samba-common-bin
-    state: present
+    name: 
+      - samba 
+      - samba-common-bin 
+    state: present 
     update_cache: yes
 
-- name: Create Samba group
-  group: 
-    name: "{{ samba_group }}"
-    state: present
+- name: Backup original smb.conf 
+  copy: 
+    src: /etc/samba/smb.conf 
+    dest: /etc/samba/smb.conf.backup 
+    remote_src: yes 
+    force: no
 
-- name: Create Samba users 
-  user: 
-    name: "{{ item.username}}"
-    groups: "{{ samba_group }}"
-    append: yes
-    create_home: yes
-    shell: /bin/bash
-    state: present
-  loop: "{{ samba_users }}"
+- name: Configure Samba share 
+  blockinfile:
+    path: /etc/samba/smb.conf 
+    block: "{{ lookup('template', 'smb.conf.j2') }}"
+    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ samba_share_name }}"
+    create: yes 
+  notify: restart_samba
 
-- name: Set Linux passowrd for Samba users
-  user: 
-    name: "{{ item.username }}"
-    password: "{{ item.password | password_hash('sha512') }}"
-    update_password: always
-  loop: "{{ samba_users }}"
-  no_log: true
-
-- name: Create Samba share directory
-  file:
-    path: "{{ samba_share_path }}"
-    state: directory 
-    owner: root
-    group: "{{ samba_group }}"
-    mode: '2770'
+- name: Add users to Samba database
+  shell: |
+    (echo "{{ vault_samba_passwords[item.name] }}"; echo "{{ vault_samba_passwords[item.name] }}") | smbpasswd -a -s {{ item.name }}
+  loop: "{{ users | selectattr('groups', 'search', 'sambajako') | list }}"
+  when: inventory_hostname == 'vm1'
+  no_log: yes
 
 - name: Create symbolic links to shared folders in user home directories
   file:
     src: "{{ samba_share_path }}"
-    dest: "/home/{{ item.username }}/shared"
+    dest: "/home/{{ item.name }}/{{ samba_share_path | basename }}"
     state: link
-    owner: "{{ item.username }}"
-    group: "{{ item.username }}"
-  loop: "{{ samba_users }}"
-
-- name: Backup original smb.conf
-  copy:
-    src: /etc/samba/smb.conf
-    dest: /etc/samba/smb.conf.backup
-    remote_src: yes
-    force: no
-
-- name: Configure Samba share
-  blockinfile:
-    path: /etc/samba/smb.conf
-    block: "{{ lookup('template', 'smb.conf.j2') }}"
-    marker: "# {mark} ANSIBLE MANAGED BLOCK - {{ samba_share_name }}"
-    create: yes
-  notify: restart samba
-
-- name: Add users to Samba database
-  shell: |
-    (echo "{{ item.password }}"; echo "{{ item.password }}") | smbpasswd -a -s {{ item.username }}
-    smbpasswd -e {{ item.username }}
-  loop: "{{ samba_users }}"
-  no_log: true
-  register: smbpasswd_result
-  changed_when: "'Added user' in smbpasswd_result.stdout"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+  loop: "{{ users | selectattr('groups', 'search', 'sambajako') | list }}"
+  when: inventory_hostname == 'vm1'
+  no_log: yes
 
 - name: Add vagrant user to Samba group (for backup access)
-  user:
-    name: vagrant
+  user: 
+    name: vagrant 
     groups: "{{ samba_group }}"
-    append: yes
+    append: yes 
 
+- name: Ensure Samba service is running and enabled
+  service:
+    name: smbd
+    state: started
+    enabled: yes
+
+- name: Ensure NetBIOS service is running and enabled  
+  service:
+    name: nmbd
+    state: started
+    enabled: yes

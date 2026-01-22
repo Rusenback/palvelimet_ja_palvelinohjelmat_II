@@ -1,15 +1,26 @@
-;
-; BIND data file for {{ dns_domain }}
-;
 $TTL    604800
-@       IN      SOA     {{ dns_domain }}. admin.{{ dns_domain }}. (
-                              2         ; Serial
-                         604800         ; Refresh
-                          86400         ; Retry
-                        2419200         ; Expire
-                         604800 )       ; Negative Cache TTL
+@       IN      SOA     ns1.{{ domain_name }}. admin.{{ domain_name }}. (
+                              2026012201 ; Serial (YYYYMMDDNN)
+                         604800         ; Refresh (1 week)
+                          86400         ; Retry (1 day)
+                        2419200         ; Expire (4 weeks)
+                         604800 )       ; Negative Cache TTL (1 week)
 ;
-@       IN      NS      ns.{{ dns_domain }}.
-@       IN      A       {{ dns_server_ip }}
-ns      IN      A       {{ dns_server_ip }}
-www     IN      A       {{ dns_server_ip }}
+; Name servers
+@       IN      NS      ns1.{{ domain_name }}.
+
+; A records
+ns1             IN      A       {{ vm1_ip }}
+www             IN      A       {{ vm1_ip }}
+@               IN      A       {{ vm1_ip }}
+
+; CNAME records (aliakset)
+web             IN      CNAME   www
+mail            IN      A       {{ vm1_ip }}
+ftp             IN      A       {{ vm1_ip }}
+
+; VM-koneiden A-recordit
+vm1             IN      A       {{ vm1_ip }}
+vm2             IN      A       {{ vm2_ip }}
+server1         IN      A       {{ vm1_ip }}
+server2         IN      A       {{ vm2_ip }}
