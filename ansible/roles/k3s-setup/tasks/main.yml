@@ -1,0 +1,101 @@
+---
+
+- name: Download K3s setup script
+  get_url: 
+    url: https://get.k3s.io
+    dest: /tmp/k3s-install.sh 
+    mode: '0755'
+  when: inventory_hostname == 'vm1'
+
+- name: Install K3s server 
+  shell: |
+    INSTALL_K3S_EXECL="server --disable traefik" /tmp/k3s-install.sh 
+  args: 
+    creates: /usr/local/bin/k3s 
+  when: inventory_hostname == 'vm1'
+
+- name: Wait for k3s to be running  
+  wait_for: 
+    port: 6443 
+    delay: 5
+    timeout: 60
+  when: inventory_hostname == 'vm1'
+
+- name: Get K3s node token
+  slurp: 
+    src: /var/lib/rancher/k3s/server/node-token 
+  register: k3s_token_raw 
+  run_once: true 
+  when: inventory_hostname == 'vm1'
+
+- name: Save K3s token 
+  set_fact: 
+    k3s_token: "{{ k3s_token_raw.content | b64decode | trim }}"
+  run_once: true 
+  delegate_facts: true
+
+- name: Create .kube directory 
+  file: 
+    path: /home/vagrant/.kube 
+    state: directory 
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+  when: inventory_hostname == 'vm1'
+
+- name: Copy kubeconfig to vagrant-user 
+  copy: 
+    src: /etc/rancher/k3s/k3s.yaml 
+    dest: /home/vagrant/.kube/config 
+    remote_src: yes 
+    owner: vagrant
+    group: vagrant 
+    mode: '0600'
+  when: inventory_hostname == 'vm1'
+
+- name: Set KUBECONFIG env variable
+  lineinfile: 
+    path: /home/vagrant/.bashrc 
+    line: 'export KUBECONFIG=/home/vagrant/.kube/config'
+    state: present
+  when: inventory_hostname == 'vm1'
+
+- name: Download K3s setup script
+  get_url: 
+    url: https://get.k3s.io
+    dest: /tmp/k3s-install.sh 
+    mode: '0755'
+  when: inventory_hostname == 'vm2'
+
+- name: Install K3s agent
+  shell: |
+    K3S_URL=https://{{ vm1_ip }}:6443 \
+    K3S_TOKEN={{ hostvars['vm1']['k3s_token'] }} \
+    INSTALL_K3S_EXEC="agent" /tmp/k3s-install.sh
+  args:
+    creates: /usr/local/bin/k3s
+  when:
+    - inventory_hostname == 'vm2'
+    - hostvars['vm1']['k3s_token'] is defined
+
+- name: Wait for K3s agent to be running   
+  wait_for:
+    port: 10250
+    delay: 5
+    timeout: 60
+  when: inventory_hostname == 'vm2'
+
+- name: Check K3s Clusters state 
+  command: kubectl get nodes 
+  register: k3s_nodes 
+  changed_when: false 
+  when: inventory_hostname ==  'vm1'
+  environment: 
+    KUBECONFIG: /etc/rancher/k3s/k3s.yaml 
+
+- name: Show cluster nodes 
+  debug: 
+    var: k3s_nodes.stdout_lines[0] 
+  when: 
+    - inventory_hostname == 'vm1'
+    - k3s_nodes is defined 

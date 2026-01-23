@@ -1,0 +1,12 @@
+---
+- name: restart_k3s
+  systemd:
+    name: k3s
+    state: restarted
+  when: inventory_hostname == 'vm1'
+
+- name: restart_k3s_agent
+  systemd:
+    name: k3s-agent
+    state: restarted
+  when: inventory_hostname == 'vm2'

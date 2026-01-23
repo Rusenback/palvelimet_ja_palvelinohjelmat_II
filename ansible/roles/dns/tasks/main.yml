@@ -20,6 +20,27 @@
   when: inventory_hostname == 'vm1'
   ignore_errors: yes 
 
+- name: Remove systemd-resolved symlink
+  file:
+    path: /etc/resolv.conf
+    state: absent
+  when: inventory_hostname == 'vm1'
+
+- name: Create new /etc/resolv.conf for BIND9
+  copy:
+    content: |
+      # Managed by Ansible - BIND9 DNS
+      nameserver 127.0.0.1
+      nameserver 8.8.8.8
+      nameserver 8.8.4.4
+      search {{ domain_name }}
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: '0644'
+  when: inventory_hostname == 'vm1'
+
+
 - name: Configure named.conf.options 
   template: 
     src: named.conf.options.j2
@@ -96,10 +117,10 @@
 
 - name: Show DNS test result 
   debug: 
-    var: dns_test_result.stdout_lines
+    var: dns_test_result.stdout_lines[0]
   when: 
     - inventory_hostname == 'vm1'
-    - dns_test_result is defined 
+    - dns_test_result is defined
 
 
 

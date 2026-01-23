@@ -4,3 +4,4 @@
 - import_playbook: 03-samba.yml
 - import_playbook: 04-backups.yml
 - import_playbook: 05-dns.yml
+- import_playbook: 06-k3s-setup.yml

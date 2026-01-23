@@ -32,6 +32,7 @@
     create_home: "{{ item.create_home }}"
     shell: "{{ item.shell }}"
     state: present 
+  no_log: yes
   loop: "{{ users }}"
 
 - name: Set Linux Passwords 
